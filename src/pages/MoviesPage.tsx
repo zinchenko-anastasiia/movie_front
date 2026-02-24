@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { fetchMoviesThunk } from "../features/movies/moviesSlice";
+import {
+  deleteMovieThunk,
+  fetchMoviesThunk,
+} from "../features/movies/moviesSlice";
 import {
   Box,
   TextField,
@@ -9,10 +12,14 @@ import {
   Card,
   CardContent,
   CircularProgress,
+  IconButton,
 } from "@mui/material";
 import { AppDispatch, useAppSelector } from "../app/store";
 import { useDispatch } from "react-redux";
 import Grid from "@mui/material/Grid";
+import CreateMovieForm from "../components/CreateMovieForm";
+import DeleteIcon from "@mui/icons-material/Delete";
+import ImportMoviesForm from "../components/ImportMoviesForm";
 
 const MoviesPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -25,12 +32,17 @@ const MoviesPage: React.FC = () => {
     dispatch(fetchMoviesThunk({ search, sort }));
   }, [dispatch, search, sort]);
 
+  const handleDelete = (id: number) => {
+    dispatch(deleteMovieThunk(id));
+  };
+
   return (
     <Box p={2}>
       <Typography variant="h4" mb={2}>
         Movies
       </Typography>
-
+      <CreateMovieForm />
+      <ImportMoviesForm />
       <Box display="flex" gap={2} mb={3}>
         <TextField
           label="Search by title or actor"
@@ -52,7 +64,10 @@ const MoviesPage: React.FC = () => {
 
       <Grid container spacing={2}>
         {movies.map((movie) => (
-          <Grid size={{ xs: 12, md: 6, lg: 4 }} key={movie.id}>
+          <Grid
+            size={{ xs: 12, md: 6, lg: 4 }}
+            key={`${movie.title}-${movie.year}`}
+          >
             <Card>
               <CardContent>
                 <Typography variant="h6">
@@ -63,6 +78,9 @@ const MoviesPage: React.FC = () => {
                   Actors: {movie.actors.map((a) => a.name).join(", ")}
                 </Typography>
               </CardContent>
+              <IconButton color="error" onClick={() => handleDelete(movie.id)}>
+                <DeleteIcon />
+              </IconButton>
             </Card>
           </Grid>
         ))}
